@@ -1,9 +1,10 @@
-using Scenes.Scripts.Components;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine.InputSystem;
+
+using Scenes.Scripts.Components;
 
 namespace Scenes.Scripts.Systems
 {
@@ -12,14 +13,12 @@ namespace Scenes.Scripts.Systems
         [BurstCompile]
         public readonly void OnCreate(ref SystemState state)
         {
-            state.RequireForUpdate<Execute.IJobEntity>();
+            state.RequireForUpdate<Cube>();
         }
 
-        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
-            float horizontal = (Keyboard.current.dKey.isPressed ? 1 : 0) - (Keyboard.current.aKey.isPressed ? 1 : 0);
-            float vertical = (Keyboard.current.wKey.isPressed ? 1 : 0) - (Keyboard.current.sKey.isPressed ? 1 : 0);
+            GetDirection(out float horizontal, out float vertical);
 
             new MovementJob()
             {
@@ -29,8 +28,13 @@ namespace Scenes.Scripts.Systems
 
             }.ScheduleParallel();
         }
-    }
 
+        private readonly void GetDirection(out float horizontal,  out float vertical)
+        {
+            horizontal = (Keyboard.current.dKey.isPressed ? 1 : 0) - (Keyboard.current.aKey.isPressed ? 1 : 0);
+            vertical = (Keyboard.current.wKey.isPressed ? 1 : 0) - (Keyboard.current.sKey.isPressed ? 1 : 0);
+        }
+    }
 
     [BurstCompile]
     partial struct MovementJob : IJobEntity
